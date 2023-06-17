@@ -45,12 +45,12 @@ class dispatcher:
 
     # 和弦脚本主函数
     # 这个函数需要重载
-    def process_callback(self):
+    def process_callback(self) -> None:
         yield
 
     # 每一帧开始时触发
     # 这个函数需要重载
-    def onFrameBegin(self):
+    def onFrameBegin(self) -> None:
         pass
 
     # 处理主函数
@@ -82,17 +82,20 @@ class dispatcher:
         self.chord_notes = notes
         self.chord_notes_real = []
 
-        last = 0
+        if len(notes) <= 0:
+            return
+
+        last = notes[0]-1
         for it in notes:
-            n = it + self.baseTone
+            n = (it - self.baseTone + 12) % 12
             while n < last:
                 n += 12
             last = n
             self.chord_notes_real.append(n)
 
         # 设置历史记录
-        if len(self.chord_notes) > 0:
-            note = self.chord_notes[0]
+        if len(self.chord_notes_real) > 0:
+            note = self.chord_notes_real[0]
             if len(self.chordHistoryQueue) == 0 or self.chordHistoryQueue[-1] != note:
                 self.chordHistoryQueue.append(note)
 
@@ -103,6 +106,7 @@ class dispatcher:
              track: int  # 轨道
              ) -> None:
 
+        tone += self.baseTone
         notepair = (tone, track)
 
         if vel > 0:
