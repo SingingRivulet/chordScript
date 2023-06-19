@@ -1,7 +1,7 @@
 import math
 import sys
 import chordDec
-import music21
+import mido
 
 
 class texture_default(chordDec.chordDec):
@@ -730,6 +730,6 @@ if __name__ == "__main__":
             line = f.readline()
 
     # print(player.ins)
-    print(player.tracks)
-    s = music21.midi.translate.midiFileToStream(player.linkEvents())
-    s.write("midi", "out.mid")
+    # print(player.tracks)
+    mf = player.linkEvents()
+    mf.save('out.mid')
