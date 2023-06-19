@@ -1,5 +1,5 @@
-import music21.midi
 import dispatch
+import mido
 
 
 class eventLogger(dispatch.dispatcher):
@@ -8,6 +8,8 @@ class eventLogger(dispatch.dispatcher):
 
         self.tracks = []
         self.ins = []
+        self.notes = []
+        self.statusMapper = dict()
 
         for i in range(numTrack):
             self.tracks.append([])
@@ -23,6 +25,7 @@ class eventLogger(dispatch.dispatcher):
         try:
             t = self.tracks[track]
             t.append((self.fragId, tone, vel))
+            print("play:", self.fragId/(384/6), tone, vel)
         except Exception as err:
             print(err)
 
@@ -40,65 +43,55 @@ class eventLogger(dispatch.dispatcher):
     def linkEvents(self):
         index = 1
 
-        mf = music21.midi.MidiFile()
-        mf.ticksPerQuarterNote = 384
+        mf = mido.MidiFile(type=1, ticks_per_beat=384)
 
         # 0号轨（留给旋律）
-        track0 = music21.midi.MidiTrack(0)
+        track0 = mido.MidiTrack()
         mf.tracks.append(track0)
-
-        # 0轨的终止符
-        me = music21.midi.MidiEvent(track0)
-        me.type = "END_OF_TRACK"
-        me.channel = 0
-        me.data = ''
-        track0.events.append(me)
 
         for trackId in range(len(self.tracks)):
 
             t = self.tracks[trackId]
 
             # 创建轨道
-            mt = music21.midi.MidiTrack(index)
+            mt = mido.MidiTrack()
             index += 1
 
             # 设置乐器
-            mp = music21.midi.MidiEvent(
-                type='PROGRAM_CHANGE', time=0, channel=trackId+1)
-            mp.data = self.ins[trackId]
+            mp = mido.Message('program_change', program=self.ins[trackId],
+                              time=0, channel=trackId+1)
+            mt.append(mp)
 
             for i in range(len(t)):
                 if i == 0:
                     # 第一个音符
                     if t[i][2] > 0:
                         delta = t[i][0]
-                        dt = music21.midi.DeltaTime(mt)
-                        dt.time = delta*6
-                        mt.events.append(dt)
+                        mnote = mido.Message('note_on',
+                                             note=t[i][1],
+                                             velocity=0,
+                                             time=delta*6)
+                        mt.append(mnote)
                 else:
                     # 后续音符需要间隔
                     delta = t[i][0]-t[i-1][0]
-                    dt = music21.midi.DeltaTime(mt)
-                    dt.time = delta*6
-                    mt.events.append(dt)
+                    delta = delta*6
 
-                me = music21.midi.MidiEvent(mt)
-                if t[i][2] > 0:
-                    me.type = "NOTE_ON"
-                else:
-                    me.type = "NOTE_OFF"
-                me.channel = trackId+1
-                me.time = None  # t[i][0] * 6
-                me.pitch = t[i][1]
-                me.velocity = t[i][2]
-                mt.events.append(me)
+                    if t[i][2] > 0:
+                        mnote = mido.Message('note_on',
+                                             note=t[i][1],
+                                             velocity=t[i][2],
+                                             time=delta,
+                                             channel=trackId+1)
+                        mt.append(mnote)
+                    else:
 
-            # 终止标识
-            me = music21.midi.MidiEvent(mt)
-            me.type = "END_OF_TRACK"
-            me.channel = trackId+1
-            me.data = ''  # must set data to empty string
-            mt.events.append(me)
+                        mnote = mido.Message('note_off',
+                                             note=t[i][1],
+                                             velocity=t[i][2],
+                                             time=delta,
+                                             channel=trackId+1)
+                        mt.append(mnote)
 
             mf.tracks.append(mt)
         return mf

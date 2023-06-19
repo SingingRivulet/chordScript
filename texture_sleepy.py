@@ -1,7 +1,7 @@
 import math
 import sys
 import chordDec
-import music21
+import mido
 
 
 class sleepy(chordDec.chordDec):
@@ -17,6 +17,7 @@ class sleepy(chordDec.chordDec):
             pianoShift = self.shiftPlayList(24)
             self.setIns(2, 24)  # 设置二号通道为吉他
             guitarShift = self.shiftPlayList(40)
+            self.setIns(3, 95)  # 设置二号通道为吉他
 
             print("pianoShift", pianoShift)
 
@@ -95,5 +96,5 @@ if __name__ == "__main__":
 
     # print(player.ins)
     # print(player.tracks)
-    s = music21.midi.translate.midiFileToStream(player.linkEvents())
-    s.write("midi", "out.mid")
+    mf = player.linkEvents()
+    mf.save('out.mid')

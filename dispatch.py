@@ -58,21 +58,26 @@ class dispatcher:
     def process(self):
         self.fragId = 0
         self.lastFragId = -1
-        secId_now = int(math.floor(self.fragId / (16. * self.bps)))
-        secId_last = int(math.floor(self.lastFragId / (16. * self.bps)))
 
         print("start")
-        for ignore in self.process_callback():
+        self.stopAll()
+        coro = self.process_callback()
+        while True:
+
             secId_now = int(math.floor(self.fragId / (16. * self.bps)))
             secId_last = int(math.floor(self.lastFragId / (16. * self.bps)))
+            self.lastFragId = self.fragId
             if self.autoStopAll and secId_now != secId_last:
                 self.stopAll()
-            self.lastFragId = self.fragId
-            self.fragId += 1
+
+            next(coro)
 
             yield self
 
+            self.fragId += 1
+
     # 停止所有音符
+
     def stopAll(self) -> None:
         for note in self.playingNote:
             tone = note[0]
