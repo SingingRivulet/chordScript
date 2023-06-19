@@ -2,6 +2,8 @@ import math
 import sys
 import chordDec
 import mido
+import sampler
+import numpy
 
 
 class sleepy(chordDec.chordDec):
@@ -78,21 +80,16 @@ if __name__ == "__main__":
     print("texture:sleepy")
     player = sleepy()
     gen = player.process()
-    with open('test.2line.txt') as f:
-        line = f.readline()
-        while line:
-            pair_str = line.strip()
-            if pair_str == "":
-                break
-            pair = pair_str.split("|")
-            melody = eval(pair[0])
-            chord = eval(pair[1])
-            for note in melody:
-                player.pushMelody(note)
-            player.setChord(chord)
-            for i in range(16):
-                next(gen)
-            line = f.readline()
+    melody_full, chord_full = sampler.sampleMidi("test.mid")
+    melody_full = numpy.array(melody_full).reshape(-1, 4)
+    for i in range(len(chord_full)):
+        melody = melody_full[i]
+        chord = chord_full[i]
+        for note in melody:
+            player.pushMelody(note)
+        player.setChord(chord)
+        for i in range(16):
+            next(gen)
 
     # print(player.ins)
     # print(player.tracks)
