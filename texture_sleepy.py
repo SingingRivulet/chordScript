@@ -1,11 +1,16 @@
 import math
+import sys
 import chordDec
+import music21
 
 
 class sleepy(chordDec.chordDec):
     def process_callback(self) -> None:
 
+        index = 0
         while True:
+            print("index", index)
+            index += 1
             yield from self.waitTime(0)
             print("seg", self.playListSize())
             self.setIns(1, 0)  # 设置一号通道为钢琴
@@ -66,3 +71,29 @@ class sleepy(chordDec.chordDec):
                 yield from self.waitTime(32)
                 self.playIndexRV(2, 3, 1, pianoShift + 12)
                 self.playIndexRV(3, 4, 2, guitarShift + 12)
+
+
+if __name__ == "__main__":
+    print("texture:sleepy")
+    player = sleepy()
+    gen = player.process()
+    with open('test.2line.txt') as f:
+        line = f.readline()
+        while line:
+            pair_str = line.strip()
+            if pair_str == "":
+                break
+            pair = pair_str.split("|")
+            melody = eval(pair[0])
+            chord = eval(pair[1])
+            for note in melody:
+                player.pushMelody(note)
+            player.setChord(chord)
+            for i in range(16):
+                next(gen)
+            line = f.readline()
+
+    # print(player.ins)
+    # print(player.tracks)
+    s = music21.midi.translate.midiFileToStream(player.linkEvents())
+    s.write("midi", "out.mid")

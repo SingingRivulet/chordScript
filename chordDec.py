@@ -1,4 +1,6 @@
+import collections
 import math
+import random
 import midiExport
 
 
@@ -6,16 +8,18 @@ class chordDec(midiExport.eventLogger):
     def __init__(self, numTrack: int = 4) -> None:
         super().__init__(numTrack)
 
-        self.chord_name_major = {'I', '0', 'II', '0',
-                                 'III', 'IV', '0', 'V', '0', 'VI', '0', 'VII'}
-        self.chord_name_minor = {'III', '0', 'IV', '0',
-                                 'V', 'VI', '0', 'VII', '0', 'I', '0', 'II'}
+        self.chord_name_major = ['I', '0', 'II', '0',
+                                 'III', 'IV', '0', 'V', '0', 'VI', '0', 'VII']
+        self.chord_name_minor = ['III', '0', 'IV', '0',
+                                 'V', 'VI', '0', 'VII', '0', 'I', '0', 'II']
 
         self.isMajor = True
 
         self.averDelta = 0
 
         self.isTerminalChord = False
+
+        self.sections = collections.deque(maxlen=64)
 
     # 获取历史记录名称
     def getChordHistoryName(self, pos: int) -> str:
@@ -57,12 +61,40 @@ class chordDec(midiExport.eventLogger):
         if delta > 0:
             delta = 0
 
-        vel = math.floor(16 * (math.random() + level - 1))
+        vel = random.randint((level-1)*16, level*16)
         if level <= 0 or vel <= 0:
             vel = 0
         elif vel >= 127:
             vel = 127
         self.playIndex(id, vel, track, delta)
+
+    # 计算平均变化率
+    def getAverDelta(self) -> float:
+        last = -1
+        sum = 0
+        count = 0
+        for it in self.sections:
+            if (it > 0):  # 音符不为0才计入
+                if (last != -1):
+                    delta = abs(it - last)
+                    if (delta >= 12):
+                        continue
+                    sum += delta
+                    count += 1
+
+                last = it
+            else:
+                # 没有音符写入0占位
+                if (last != -1):
+                    count += 1
+        if (count == 0):
+            return 0.
+        else:
+            return float(sum) / float(count)
+
+    def pushMelody(self, note: int):
+        self.sections.append(note)
+        self.averDelta = self.getAverDelta()
 
     def onFrameBegin(self):
         self.isTerminalChord = self.checkTerminalChord()

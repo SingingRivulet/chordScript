@@ -60,13 +60,15 @@ class dispatcher:
         self.lastFragId = -1
         secId_now = int(math.floor(self.fragId / (16. * self.bps)))
         secId_last = int(math.floor(self.lastFragId / (16. * self.bps)))
-        yield self
+
+        print("start")
         for ignore in self.process_callback():
             secId_now = int(math.floor(self.fragId / (16. * self.bps)))
             secId_last = int(math.floor(self.lastFragId / (16. * self.bps)))
             if self.autoStopAll and secId_now != secId_last:
                 self.stopAll()
             self.lastFragId = self.fragId
+            self.fragId += 1
 
             yield self
 
@@ -76,6 +78,7 @@ class dispatcher:
             tone = note[0]
             channel = note[1]
             self.playNote(tone, 0, channel)
+        self.playingNote = set()
 
     # 设置和弦
     def setChord(self, notes: list) -> None:
@@ -156,13 +159,16 @@ class dispatcher:
 
     # 跳到下一帧
     def sleepSec(self):
-        yield
+        yield 0
         self.onFrameBegin()
 
     # 等到指定时间
     def waitTime(self, time: int):
-        while self.fragId != time:
+        while True:
             yield from self.sleepSec()
+            #print("id:", self.fragId)
+            if (self.fragId % (self.bps * 16)) == time:
+                break
 
 
 # 测试

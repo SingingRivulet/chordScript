@@ -65,7 +65,7 @@ class eventLogger(dispatch.dispatcher):
             # 设置乐器
             mp = music21.midi.MidiEvent(
                 type='PROGRAM_CHANGE', time=0, channel=trackId+1)
-            mp.setProgram(self.ins[trackId])
+            mp.data = self.ins[trackId]
 
             for i in range(len(t)):
                 if i == 0:
