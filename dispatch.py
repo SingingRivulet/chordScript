@@ -95,11 +95,16 @@ class dispatcher:
 
         last = notes[0]-1
         for it in notes:
+            if it <= 0:
+                continue
             n = (it - self.baseTone + 12) % 12
             while n < last:
                 n += 12
             last = n
             self.chord_notes_real.append(n)
+
+        if len(self.chord_notes_real) <= 0:
+            return
 
         # 设置历史记录
         if len(self.chord_notes_real) > 0:

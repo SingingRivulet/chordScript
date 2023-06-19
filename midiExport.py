@@ -22,6 +22,9 @@ class eventLogger(dispatch.dispatcher):
                  track: int  # 轨道
                  ) -> None:
 
+        if tone >= 127 or tone <= 0:
+            return
+
         try:
             t = self.tracks[track]
             t.append((self.fragId, tone, vel))
