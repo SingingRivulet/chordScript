@@ -714,9 +714,12 @@ class texture_default(chordDec.chordDec):
 
 if __name__ == "__main__":
     print("texture:default")
+    midi_in = "test.mid"
+    midi_out = 'out.mid'
     player = texture_default()
     gen = player.process()
-    melody_full, chord_full = sampler.sampleMidi("test.mid")
+    melody_full, chord_full = sampler.sampleMidi(midi_in)
+    mid_src = mido.MidiFile(midi_in)
     melody_full = numpy.array(melody_full).reshape(-1, 4)
     for i in range(len(chord_full)):
         melody = melody_full[i]
@@ -729,5 +732,6 @@ if __name__ == "__main__":
 
     # print(player.ins)
     # print(player.tracks)
-    mf = player.linkEvents()
-    mf.save('out.mid')
+    mf = player.linkEvents(mid_src.ticks_per_beat)
+    mf.tracks[0] = mid_src.tracks[0]
+    mf.save(midi_out)

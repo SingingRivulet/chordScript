@@ -43,10 +43,11 @@ class eventLogger(dispatch.dispatcher):
             print(err)
 
     # 把事件连接成音符
-    def linkEvents(self):
+    def linkEvents(self, tpq=384):
         index = 1
 
-        mf = mido.MidiFile(type=1, ticks_per_beat=384)
+        mf = mido.MidiFile(type=1, ticks_per_beat=tpq)
+        k = tpq/16
 
         # 0号轨（留给旋律）
         track0 = mido.MidiTrack()
@@ -73,12 +74,12 @@ class eventLogger(dispatch.dispatcher):
                         mnote = mido.Message('note_on',
                                              note=t[i][1],
                                              velocity=0,
-                                             time=delta*6)
+                                             time=int(delta*k))
                         mt.append(mnote)
                 else:
                     # 后续音符需要间隔
                     delta = t[i][0]-t[i-1][0]
-                    delta = delta*6
+                    delta = int(delta*k)
 
                     if t[i][2] > 0:
                         mnote = mido.Message('note_on',
