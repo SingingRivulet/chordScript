@@ -691,6 +691,7 @@ class texture_default(chordDec.chordDec):
         yield from self.startSec()
 
         yield from self.waitTime(0)
+        self.setIns(3, 95)  # 设置三号通道为弦乐
         self.playIndexRV(1, 4, 3, 0)
         self.playIndexRV(2, 4, 3, 0)
         self.playIndexRV(3, 4, 3, 0)
@@ -714,11 +715,12 @@ class texture_default(chordDec.chordDec):
 
 if __name__ == "__main__":
     print("texture:default")
-    midi_in = "test.mid"
-    midi_out = 'out.mid'
+    midi_in = sys.argv[1]  # "test.mid"
+    midi_out = sys.argv[2]  # 'out.mid'
     player = texture_default()
     gen = player.process()
-    melody_full, chord_full = sampler.sampleMidi(midi_in)
+    melody_full, chord_full, tonal = sampler.sampleMidi(midi_in)
+    player.setTonal(tonal)
     mid_src = mido.MidiFile(midi_in)
     melody_full = numpy.array(melody_full).reshape(-1, 4)
     for i in range(len(chord_full)):

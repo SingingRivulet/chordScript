@@ -28,7 +28,7 @@ class eventLogger(dispatch.dispatcher):
         try:
             t = self.tracks[track]
             t.append((self.fragId, tone, vel))
-            print("play:", self.fragId/(384/6), tone, vel)
+            #print("play:", self.fragId/(384/6), tone, vel)
         except Exception as err:
             print(err)
 

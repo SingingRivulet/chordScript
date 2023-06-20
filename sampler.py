@@ -48,4 +48,5 @@ def sampleMidi(midi_path):
                 melodyArray[i+begin] = n.pitch.midi
 
     # print(melodyArray)
-    return melodyArray, chordArray
+    kk = music21.analysis.discrete.KrumhanslKessler()
+    return melodyArray, chordArray, kk.getSolution(midi_data)

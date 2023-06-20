@@ -62,6 +62,7 @@ class dispatcher:
         print("start")
         self.stopAll()
         coro = self.process_callback()
+        next(coro)
         while True:
 
             secId_now = int(math.floor(self.fragId / (16. * self.bps)))
@@ -77,7 +78,6 @@ class dispatcher:
             self.fragId += 1
 
     # 停止所有音符
-
     def stopAll(self) -> None:
         for note in self.playingNote:
             tone = note[0]
@@ -174,6 +174,7 @@ class dispatcher:
 
     # 等到指定时间
     def waitTime(self, time: int):
+        #print("waitTime:", self.fragId, time)
         while True:
             yield from self.sleepSec()
             #print("id:", self.fragId)

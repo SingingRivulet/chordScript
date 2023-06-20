@@ -92,6 +92,11 @@ class chordDec(midiExport.eventLogger):
         else:
             return float(sum) / float(count)
 
+    # 设置调性
+    def setTonal(self, tonal):
+        self.baseTone = tonal.tonic.midi % 12
+        self.isMajor = (tonal.mode == "major")
+
     def pushMelody(self, note: int):
         self.sections.append(note)
         self.averDelta = self.getAverDelta()

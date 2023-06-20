@@ -11,7 +11,6 @@ class sleepy(chordDec.chordDec):
 
         index = 0
         while True:
-            print("index", index)
             index += 1
             yield from self.waitTime(0)
             print("seg", self.playListSize())
@@ -19,7 +18,7 @@ class sleepy(chordDec.chordDec):
             pianoShift = self.shiftPlayList(24)
             self.setIns(2, 24)  # 设置二号通道为吉他
             guitarShift = self.shiftPlayList(40)
-            self.setIns(3, 95)  # 设置二号通道为吉他
+            self.setIns(3, 95)  # 设置三号通道为弦乐
 
             print("pianoShift", pianoShift)
 
@@ -78,11 +77,12 @@ class sleepy(chordDec.chordDec):
 
 if __name__ == "__main__":
     print("texture:sleepy")
-    midi_in = "test.mid"
-    midi_out = 'out.mid'
+    midi_in = sys.argv[1]  # "test.mid"
+    midi_out = sys.argv[2]  # 'out.mid'
     player = sleepy()
     gen = player.process()
-    melody_full, chord_full = sampler.sampleMidi(midi_in)
+    melody_full, chord_full, tonal = sampler.sampleMidi(midi_in)
+    player.setTonal(tonal)
     mid_src = mido.MidiFile(midi_in)
     melody_full = numpy.array(melody_full).reshape(-1, 4)
     for i in range(len(chord_full)):
