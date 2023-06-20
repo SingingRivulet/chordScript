@@ -633,9 +633,9 @@ class texture_default(chordDec.chordDec):
 
             print("pianoShift", pianoShift)
 
-            self.playIndexRV(1, 4, 3, 0)
-            self.playIndexRV(2, 4, 3, 0)
-            self.playIndexRV(3, 4, 3, 0)
+            self.playIndexRV(1, 4, 3, -24)
+            self.playIndexRV(2, 4, 3, -24)
+            self.playIndexRV(3, 4, 3, -24)
             if self.playListSize() == 1:
                 # 一个音：
                 self.playIndexRV(1, 4, 2, 0)  # [1,0,4,Guitar,p4]
@@ -692,18 +692,18 @@ class texture_default(chordDec.chordDec):
 
         yield from self.waitTime(0)
         self.setIns(3, 95)  # 设置三号通道为弦乐
-        self.playIndexRV(1, 4, 3, 0)
-        self.playIndexRV(2, 4, 3, 0)
-        self.playIndexRV(3, 4, 3, 0)
+        self.playIndexRV(1, 4, 3, -24)
+        self.playIndexRV(2, 4, 3, -24)
+        self.playIndexRV(3, 4, 3, -24)
         seg = self.isRefrain()
         yield from self.play_m_1()
         yield from self.waitTime(0)
         yield from self.play_m_2()
         yield from self.waitTime(0)
         while True:
-            self.playIndexRV(1, 4, 3, 0)
-            self.playIndexRV(2, 4, 3, 0)
-            self.playIndexRV(3, 4, 3, 0)
+            self.playIndexRV(1, 4, 3, -24)
+            self.playIndexRV(2, 4, 3, -24)
+            self.playIndexRV(3, 4, 3, -24)
             seg = self.isRefrain()
             if seg:
                 yield from self.play_r()
