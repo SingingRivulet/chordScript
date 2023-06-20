@@ -732,6 +732,8 @@ if __name__ == "__main__":
         for i in range(16):
             next(gen)
 
+    player.stopAll()
+
     # print(player.ins)
     # print(player.tracks)
     mf = player.linkEvents(mid_src.ticks_per_beat)
