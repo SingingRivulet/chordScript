@@ -79,9 +79,29 @@ if __name__ == "__main__":
     print("texture:sleepy")
     midi_in = sys.argv[1]  # "test.mid"
     midi_out = sys.argv[2]  # 'out.mid'
+
+    track_melody = 0
+    track_chord = 1
+    try:
+        track_melody = int(sys.argv[3])
+        track_chord = int(sys.argv[4])
+        print("track_melody:", track_melody)
+        print("track_chord:", track_chord)
+    except Exception:
+        pass
+
+    track_mix = track_melody
+    try:
+        track_mix = int(sys.argv[5])
+        print("track_mix:", track_mix)
+    except Exception:
+        pass
+
     player = sleepy()
     gen = player.process()
-    melody_full, chord_full, tonal = sampler.sampleMidi(midi_in)
+    melody_full, chord_full, tonal = sampler.sampleMidi(midi_in,
+                                                        track_melody=track_melody,
+                                                        track_chord=track_chord)
     player.setTonal(tonal)
     mid_src = mido.MidiFile(midi_in)
     melody_full = numpy.array(melody_full).reshape(-1, 4)
@@ -95,9 +115,9 @@ if __name__ == "__main__":
             next(gen)
 
     player.stopAll()
-    
+
     # print(player.ins)
     # print(player.tracks)
     mf = player.linkEvents(mid_src.ticks_per_beat)
-    mf.tracks[0] = mid_src.tracks[0]
+    mf.tracks[0] = mid_src.tracks[track_mix]
     mf.save(midi_out)
